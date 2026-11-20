@@ -157,6 +157,27 @@ li { padding: 12px 0; border-bottom: 1px solid var(--line); }
 </div></div>
 <main><div class="wrap"><ul id="list"></ul><p id="leeg" class="leeg" hidden>Geen gerecht gevonden. Haal een filter weg of wis je zoekopdracht.</p></div></main>
 <script>
+const CACHE_MAX_AGE = 60 * 1000;
+
+function laadVerseVersie() {
+  const url = new URL(window.location.href);
+  const versie = Number(url.searchParams.get("_v") || 0);
+  const nu = Date.now();
+
+  if (!versie || nu - versie > CACHE_MAX_AGE) {
+    url.searchParams.set("_v", String(nu));
+    window.location.replace(url.toString());
+  }
+}
+
+laadVerseVersie();
+
+document.addEventListener("visibilitychange", () => {
+  if (document.visibilityState === "visible") {
+    laadVerseVersie();
+  }
+});
+
 const DATA = __DATA__;
 const sel = {};
 DATA.groups.forEach(g => sel[g.name] = new Set());

@@ -21,10 +21,12 @@ body {
   font: 16px/1.45 "Avenir Next", "Segoe UI", system-ui, sans-serif;
   padding: env(safe-area-inset-top, 0) env(safe-area-inset-right, 0) env(safe-area-inset-bottom, 0) env(safe-area-inset-left, 0);
 }
-.top {
+.top { padding: 14px 16px 2px; }
+.bar {
   position: sticky; top: 0; z-index: 5; background: var(--bg);
-  border-bottom: 1px solid var(--line); padding: 14px 16px 10px;
+  border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); padding: 6px 16px;
 }
+.bar .wrap { display: flex; justify-content: space-between; align-items: center; gap: 12px; }
 .wrap { max-width: 640px; margin: 0 auto; }
 h1 { font: 700 1.5rem/1.2 Georgia, "Iowan Old Style", serif; margin: 0 0 10px; }
 input[type=search] {
@@ -41,7 +43,8 @@ input[type=search] {
 }
 .chip[aria-pressed=true] { background: var(--accent); border-color: var(--accent); color: var(--on-accent); font-weight: 600; }
 .chip:focus-visible, input:focus-visible, .reset:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
-.status { display: flex; justify-content: space-between; align-items: center; font-size: .9rem; color: var(--muted); min-height: 1.8rem; }
+.count { font-size: .9rem; color: var(--muted); }
+.acties { display: flex; gap: 14px; flex: 0 0 auto; }
 .reset { font: inherit; font-size: .9rem; color: var(--accent); background: none; border: 0; padding: 4px 0; cursor: pointer; text-decoration: underline; }
 main { padding: 6px 16px 40px; }
 ul { list-style: none; margin: 0; padding: 0; }
@@ -56,10 +59,18 @@ li { padding: 12px 0; border-bottom: 1px solid var(--line); }
 <body>
 <header class="top"><div class="wrap">
   <h1>Wat eten we?</h1>
-  <input id="q" type="search" placeholder="Zoek een gerecht" aria-label="Zoek een gerecht">
-  <div id="filters"></div>
-  <div class="status"><span id="count"></span><button id="reset" class="reset" type="button" hidden>Wis filters</button></div>
+  <div id="panel">
+    <input id="q" type="search" placeholder="Zoek een gerecht" aria-label="Zoek een gerecht">
+    <div id="filters"></div>
+  </div>
 </div></header>
+<div class="bar"><div class="wrap">
+  <span id="count" class="count"></span>
+  <span class="acties">
+    <button id="reset" class="reset" type="button" hidden>Wis filters</button>
+    <button id="toggle" class="reset" type="button" aria-controls="panel" aria-expanded="true">Verberg filters</button>
+  </span>
+</div></div>
 <main><div class="wrap"><ul id="list"></ul><p id="leeg" class="leeg" hidden>Geen gerecht gevonden. Haal een filter weg of wis je zoekopdracht.</p></div></main>
 <script>
 const DATA = {"groups": [{"name": "Carbs", "values": ["Rijst", "Aardappel", "Pasta", "Noedels", "Wrap"]}, {"name": "Meat", "values": ["Veggie", "Gehakt", "Kip", "Vis", "Spek", "Hesp", "Eend", "Lam", "Rund", "Worst"]}, {"name": "Moeite", "values": ["Makkelijk", "Gemiddeld", "Moeilijk"]}, {"name": "Tijd", "values": ["Snel", "Gemiddeld", "Lang"]}, {"name": "Etentje", "values": ["Ja", "Misschien", "Nee"]}], "dishes": [{"name": "Orzo Otto", "notes": "", "tags": {"Carbs": ["Pasta"], "Meat": ["Veggie"], "Moeite": ["Gemiddeld"], "Tijd": ["Gemiddeld"], "Etentje": ["Ja"]}}, {"name": "Ragu Otto", "notes": "", "tags": {"Carbs": ["Pasta"], "Meat": ["Veggie"], "Moeite": ["Gemiddeld"], "Tijd": ["Lang"], "Etentje": ["Ja"]}}, {"name": "Rijstlamspie Otto", "notes": "", "tags": {"Carbs": ["Rijst"], "Meat": ["Lam"], "Moeite": ["Gemiddeld"], "Tijd": ["Gemiddeld"], "Etentje": ["Ja"]}}, {"name": "Tonijnpasta Otto", "notes": "", "tags": {"Carbs": ["Pasta"], "Meat": ["Vis"], "Moeite": ["Makkelijk"], "Tijd": ["Snel"], "Etentje": ["Ja"]}}, {"name": "Risotto", "notes": "", "tags": {"Carbs": ["Rijst"], "Meat": ["Veggie"], "Moeite": ["Makkelijk"], "Tijd": ["Snel"], "Etentje": ["Misschien"]}}, {"name": "Zalm bowl", "notes": "", "tags": {"Carbs": ["Rijst"], "Meat": ["Vis"], "Moeite": ["Makkelijk"], "Tijd": ["Gemiddeld"], "Etentje": ["Ja"]}}, {"name": "Wokje", "notes": "", "tags": {"Carbs": ["Noedels", "Rijst"], "Meat": ["Veggie"], "Moeite": ["Makkelijk"], "Tijd": ["Snel"], "Etentje": ["Nee"]}}, {"name": "Pasta pesto salade", "notes": "", "tags": {"Carbs": ["Pasta"], "Meat": ["Spek", "Veggie"], "Moeite": ["Makkelijk"], "Tijd": ["Snel"], "Etentje": ["Nee"]}}, {"name": "Hete bliksem", "notes": "", "tags": {"Carbs": ["Aardappel"], "Meat": ["Gehakt"], "Moeite": ["Makkelijk"], "Tijd": ["Gemiddeld"], "Etentje": ["Misschien"]}}, {"name": "Bloemkool schotel", "notes": "", "tags": {"Carbs": ["Aardappel"], "Meat": ["Gehakt"], "Moeite": ["Gemiddeld"], "Tijd": ["Gemiddeld"], "Etentje": ["Nee"]}}, {"name": "Spaghetti", "notes": "", "tags": {"Carbs": ["Pasta"], "Meat": ["Gehakt"], "Moeite": ["Gemiddeld"], "Tijd": ["Lang"], "Etentje": ["Misschien"]}}, {"name": "Chili", "notes": "", "tags": {"Carbs": ["Rijst"], "Meat": ["Gehakt"], "Moeite": ["Gemiddeld"], "Tijd": ["Lang"], "Etentje": ["Misschien"]}}, {"name": "TikTok pasta", "notes": "", "tags": {"Carbs": ["Pasta"], "Meat": ["Veggie"], "Moeite": ["Makkelijk"], "Tijd": ["Snel"], "Etentje": ["Nee"]}}, {"name": "Bocca pasta", "notes": "", "tags": {"Carbs": ["Pasta"], "Meat": ["Spek", "Veggie"], "Moeite": ["Makkelijk"], "Tijd": ["Snel"], "Etentje": ["Nee"]}}, {"name": "Wraps", "notes": "", "tags": {"Carbs": ["Wrap"], "Meat": ["Gehakt", "Kip"], "Moeite": ["Makkelijk"], "Tijd": ["Snel"], "Etentje": ["Nee"]}}, {"name": "Macaroni met groente", "notes": "", "tags": {"Carbs": ["Pasta"], "Meat": ["Hesp"], "Moeite": ["Makkelijk"], "Tijd": ["Snel"], "Etentje": ["Nee"]}}, {"name": "Witloof in hesp", "notes": "", "tags": {"Carbs": ["Aardappel"], "Meat": ["Hesp"], "Moeite": ["Gemiddeld"], "Tijd": ["Gemiddeld"], "Etentje": ["Misschien"]}}, {"name": "Fishticks met puree", "notes": "", "tags": {"Carbs": ["Aardappel"], "Meat": ["Vis"], "Moeite": ["Makkelijk"], "Tijd": ["Snel"], "Etentje": ["Nee"]}}, {"name": "Worst met puree", "notes": "", "tags": {"Carbs": ["Aardappel"], "Meat": ["Worst"], "Moeite": ["Makkelijk"], "Tijd": ["Snel"], "Etentje": ["Nee"]}}, {"name": "Pesto scampi", "notes": "", "tags": {"Carbs": ["Pasta"], "Meat": ["Vis"], "Moeite": ["Makkelijk"], "Tijd": ["Snel"], "Etentje": ["Nee"]}}, {"name": "Slaatje haloumi", "notes": "", "tags": {"Carbs": [], "Meat": ["Veggie"], "Moeite": ["Makkelijk"], "Tijd": ["Gemiddeld"], "Etentje": ["Misschien"]}}, {"name": "Slaatje geitenkaas", "notes": "", "tags": {"Carbs": [], "Meat": ["Veggie"], "Moeite": ["Makkelijk"], "Tijd": ["Gemiddeld"], "Etentje": ["Misschien"]}}, {"name": "Kip met gebakken patatjes", "notes": "", "tags": {"Carbs": ["Aardappel"], "Meat": ["Kip"], "Moeite": ["Makkelijk"], "Tijd": ["Gemiddeld"], "Etentje": ["Ja"]}}, {"name": "Kip met curry", "notes": "", "tags": {"Carbs": ["Rijst"], "Meat": ["Kip"], "Moeite": ["Makkelijk"], "Tijd": ["Gemiddeld"], "Etentje": ["Misschien"]}}, {"name": "Kip dragon", "notes": "", "tags": {"Carbs": ["Aardappel", "Rijst"], "Meat": ["Kip"], "Moeite": ["Gemiddeld"], "Tijd": ["Gemiddeld"], "Etentje": ["Ja"]}}, {"name": "Pasta Nerano", "notes": "", "tags": {"Carbs": ["Pasta"], "Meat": ["Veggie"], "Moeite": ["Gemiddeld"], "Tijd": ["Gemiddeld"], "Etentje": ["Misschien"]}}, {"name": "Gevulde courgette", "notes": "", "tags": {"Carbs": ["Rijst"], "Meat": ["Gehakt"], "Moeite": ["Gemiddeld"], "Tijd": ["Gemiddeld"], "Etentje": ["Misschien"]}}, {"name": "Chinese rijst", "notes": "", "tags": {"Carbs": ["Rijst"], "Meat": ["Kip", "Veggie"], "Moeite": ["Gemiddeld"], "Tijd": ["Gemiddeld"], "Etentje": ["Misschien"]}}, {"name": "Poke bowl", "notes": "", "tags": {"Carbs": ["Rijst"], "Meat": ["Kip", "Vis"], "Moeite": ["Moeilijk"], "Tijd": ["Gemiddeld"], "Etentje": ["Ja"]}}, {"name": "Ramen", "notes": "", "tags": {"Carbs": ["Noedels"], "Meat": ["Spek"], "Moeite": ["Gemiddeld"], "Tijd": ["Lang"], "Etentje": ["Ja"]}}, {"name": "Balletjes in tomatensaus", "notes": "", "tags": {"Carbs": ["Aardappel", "Rijst"], "Meat": ["Gehakt"], "Moeite": ["Gemiddeld"], "Tijd": ["Lang"], "Etentje": ["Ja"]}}, {"name": "Stoverij", "notes": "", "tags": {"Carbs": ["Aardappel"], "Meat": ["Rund"], "Moeite": ["Gemiddeld"], "Tijd": ["Lang"], "Etentje": ["Ja"]}}, {"name": "Dumplings", "notes": "", "tags": {"Carbs": ["Noedels"], "Meat": ["Gehakt", "Kip", "Veggie"], "Moeite": ["Moeilijk"], "Tijd": ["Gemiddeld"], "Etentje": ["Ja"]}}, {"name": "Eend met lak", "notes": "", "tags": {"Carbs": ["Aardappel"], "Meat": ["Eend"], "Moeite": ["Moeilijk"], "Tijd": ["Lang"], "Etentje": ["Ja"]}}]};
@@ -104,7 +115,14 @@ function matches(d) {
   });
 }
 
-function active() { return q !== "" || DATA.groups.some(g => sel[g.name].size > 0); }
+function actieve() {
+  const lijst = [];
+  DATA.groups.forEach(g => sel[g.name].forEach(v => lijst.push(v)));
+  if (q) lijst.push("\u201c" + q + "\u201d");
+  return lijst;
+}
+function active() { return actieve().length > 0; }
+let open = true;
 
 function render() {
   const hits = DATA.dishes.filter(matches).sort((a, b) => a.name.localeCompare(b.name, "nl"));
@@ -119,11 +137,22 @@ function render() {
     list.append(li);
   });
   $("leeg").hidden = hits.length > 0;
-  $("count").textContent = hits.length + " van " + DATA.dishes.length + " gerechten";
-  $("reset").hidden = !active();
+  const act = actieve();
+  let tekst = hits.length + " van " + DATA.dishes.length + " gerechten";
+  if (!open && act.length) tekst += " (" + act.join(", ") + ")";
+  $("count").textContent = tekst;
+  $("reset").hidden = act.length === 0;
+  $("panel").hidden = !open;
+  $("toggle").setAttribute("aria-expanded", String(open));
+  $("toggle").textContent = (open ? "Verberg filters" : "Toon filters") + (!open && act.length ? " (" + act.length + ")" : "");
 }
 
 $("q").addEventListener("input", e => { q = e.target.value.trim().toLowerCase(); render(); });
+$("toggle").addEventListener("click", () => {
+  open = !open;
+  if (open) window.scrollTo({ top: 0 });
+  render();
+});
 $("reset").addEventListener("click", () => {
   q = ""; $("q").value = "";
   DATA.groups.forEach(g => sel[g.name].clear());

@@ -7,7 +7,7 @@ on:
       - gerechten.csv
       - maak_pagina.py
       - .github/workflows/pagina.yml
-  workflow_dispatch:   # laat je de bouw ook handmatig starten (tabblad Actions)
+  workflow_dispatch:
 
 permissions:
   contents: read
@@ -24,24 +24,30 @@ jobs:
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
-    steps:
-      - uses: actions/checkout@v4
 
-      - uses: actions/setup-python@v5
+    steps:
+      - name: Repository ophalen
+        uses: actions/checkout@v4
+
+      - name: Python installeren
+        uses: actions/setup-python@v5
         with:
           python-version: "3.12"
 
       - name: Maak index.html uit gerechten.csv
         run: |
           python maak_pagina.py
-          mkdir site
+          mkdir -p site
           mv index.html site/
 
-      - uses: actions/configure-pages@v5
+      - name: GitHub Pages configureren
+        uses: actions/configure-pages@v5
 
-      - uses: actions/upload-pages-artifact@v3
+      - name: GitHub Pages-artifact uploaden
+        uses: actions/upload-pages-artifact@v4
         with:
           path: site
 
-      - id: deployment
+      - name: Publiceren naar GitHub Pages
+        id: deployment
         uses: actions/deploy-pages@v4

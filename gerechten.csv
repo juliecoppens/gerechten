@@ -1,4 +1,4 @@
-﻿Dish,Carbs,Meat,Moeite,Tijd,Etentje,Notities,Description
+Dish,Carbs,Meat,Moeite,Tijd,Etentje,Notities,Description
 Orzo Otto,Pasta,Veggie,Gemiddeld,Gemiddeld,Ja,,
 Ragu Otto,Pasta,Veggie,Gemiddeld,Lang,Ja,,
 Rijstlamspie Otto,Rijst,Lam,Gemiddeld,Gemiddeld,Ja,,
@@ -33,4 +33,5 @@ Balletjes in tomatensaus,"Aardappel, Rijst",Gehakt,Gemiddeld,Lang,Ja,,
 Stoverij,Aardappel,Rund,Gemiddeld,Lang,Ja,,
 Dumplings,Noedels,"Gehakt, Kip, Veggie",Moeilijk,Gemiddeld,Ja,,
 Eend met lak,Aardappel,Eend,Moeilijk,Lang,Ja,,
-Test,Rijst,Spek,Makkelijk,,,,
+Vegetarische lasagne,Pasta,Veggie,Gemiddeld,Gemiddeld,Misschien,,
+Erwten en worteltjes,"Aardappel, Pasta","Gehakt, Kip",Makkelijk,Snel,Nee,,
